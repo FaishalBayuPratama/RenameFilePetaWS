@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasil Pemrosesan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="bg-gradient-to-br from-green-50 to-teal-100 min-h-screen">
+    <div class="container mx-auto px-4 py-12">
+        
+        <!-- Success Header -->
+        <div class="text-center mb-10">
+            <div class="inline-block bg-green-100 rounded-full p-6 mb-4">
+                <svg class="h-16 w-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-3">
+                ✨ Proses Selesai!
+            </h1>
+            <p class="text-gray-600 text-lg">
+                File Anda telah berhasil diproses dan siap diunduh
+            </p>
+        </div>
+
+        <div class="max-w-4xl mx-auto">
+            
+            <!-- Results Summary Card -->
+            <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                
+                {% if result_type == 'rename' %}
+                <!-- Rename Results -->
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                        <span class="text-3xl mr-3">🔍</span>
+                        Hasil Rename Peta
+                    </h2>
+                    
+                    <!-- Statistics -->
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                            <div class="text-green-600 font-semibold text-sm">Berhasil Di-rename</div>
+                            <div class="text-3xl font-bold text-green-700">{{ results.success }}</div>
+                        </div>
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <div class="text-yellow-600 font-semibold text-sm">File Anomali</div>
+                            <div class="text-3xl font-bold text-yellow-700">{{ results.anomali }}</div>
+                        </div>
+                    </div>
+
+                    <!-- File Details -->
+                    <div class="mt-6">
+                        <h3 class="font-semibold text-gray-700 mb-3">Detail File:</h3>
+                        <div class="max-h-96 overflow-y-auto bg-gray-50 rounded-lg p-4 space-y-2">
+                            {% for file in results.files %}
+                            <div class="flex items-center justify-between bg-white p-3 rounded border {% if file.status == 'success' %}border-green-200{% else %}border-yellow-200{% endif %}">
+                                <div class="flex-1">
+                                    <div class="text-sm text-gray-500">{{ file.original }}</div>
+                                    <div class="font-medium text-gray-700 flex items-center">
+                                        {% if file.status == 'success' %}
+                                        <span class="text-green-500 mr-2">✓</span>
+                                        {% else %}
+                                        <span class="text-yellow-500 mr-2">⚠</span>
+                                        {% endif %}
+                                        {{ file.new }}
+                                    </div>
+                                </div>
+                                <div>
+                                    {% if file.status == 'success' %}
+                                    <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Berhasil</span>
+                                    {% else %}
+                                    <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">Anomali</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Info Message -->
+                    {% if results.anomali > 0 %}
+                    <div class="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <p class="text-sm text-yellow-800">
+                            <span class="font-semibold">ℹ️ Catatan:</span> 
+                            File dengan label "Anomali" adalah file yang tidak ditemukan nomor 10-16 digit pada hasil OCR. 
+                            Silakan cek manual untuk file-file tersebut.
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% elif result_type == 'convert' %}
+                <!-- Convert Results -->
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                        <span class="text-3xl mr-3">📄</span>
+                        Hasil Konversi PDF ke JPG
+                    </h2>
+                    
+                    <!-- Statistics -->
+                    <div class="bg-purple-50 border border-purple-200 rounded-lg p-6 mb-6">
+                        <div class="text-center">
+                            <div class="text-purple-600 font-semibold text-sm mb-2">Total Halaman Dikonversi</div>
+                            <div class="text-5xl font-bold text-purple-700">{{ results.total_pages }}</div>
+                            <div class="text-sm text-purple-600 mt-2">Resolusi: 300 DPI</div>
+                        </div>
+                    </div>
+
+                    <!-- File List -->
+                    <div class="mt-6">
+                        <h3 class="font-semibold text-gray-700 mb-3">File yang Dihasilkan:</h3>
+                        <div class="max-h-96 overflow-y-auto bg-gray-50 rounded-lg p-4 space-y-2">
+                            {% for file in results.files %}
+                            <div class="flex items-center justify-between bg-white p-3 rounded border border-purple-200">
+                                <div class="flex items-center">
+                                    <span class="text-purple-500 text-2xl mr-3">🖼️</span>
+                                    <div>
+                                        <div class="font-medium text-gray-700">{{ file.filename }}</div>
+                                        <div class="text-xs text-gray-500">Halaman {{ file.page }}</div>
+                                    </div>
+                                </div>
+                                <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">✓ Berhasil</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Download Button -->
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <a href="{{ url_for('download', filename=download_file) }}" 
+                       class="block w-full bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white font-bold py-4 px-6 rounded-lg text-center transition-all duration-200 text-lg">
+                        📥 Download Hasil (ZIP)
+                    </a>
+                </div>
+
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="grid grid-cols-2 gap-4">
+                <a href="{{ url_for('index') }}" 
+                   class="block bg-white hover:bg-gray-50 text-gray-700 font-semibold py-3 px-6 rounded-lg text-center border-2 border-gray-300 transition-colors duration-200">
+                    ← Kembali ke Beranda
+                </a>
+                {% if result_type == 'rename' %}
+                <a href="{{ url_for('rename') }}" 
+                   class="block bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg text-center transition-colors duration-200">
+                    🔄 Proses File Lagi
+                </a>
+                {% else %}
+                <a href="{{ url_for('convert') }}" 
+                   class="block bg-purple-500 hover:bg-purple-600 text-white font-semibold py-3 px-6 rounded-lg text-center transition-colors duration-200">
+                    🔄 Konversi PDF Lagi
+                </a>
+                {% endif %}
+            </div>
+
+        </div>
+
+    </div>
+</body>
+</html>

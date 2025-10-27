@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rename Peta dengan OCR</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-12">
+        
+        <!-- Back Button -->
+        <div class="mb-6">
+            <a href="{{ url_for('index') }}" 
+               class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
+                ← Kembali ke Beranda
+            </a>
+        </div>
+
+        <!-- Header -->
+        <div class="text-center mb-10">
+            <div class="text-6xl mb-4">🔍</div>
+            <h1 class="text-4xl font-bold text-gray-800 mb-3">
+                Rename Peta dengan OCR
+            </h1>
+            <p class="text-gray-600 text-lg max-w-2xl mx-auto">
+                Upload file ZIP berisi gambar peta atau pilih multiple gambar. 
+                Sistem akan otomatis mendeteksi nomor dan me-rename file.
+            </p>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="max-w-2xl mx-auto mb-6 p-4 rounded-lg {% if category == 'error' %}bg-red-100 text-red-700 border border-red-300{% else %}bg-green-100 text-green-700 border border-green-300{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Upload Form -->
+        <div class="max-w-3xl mx-auto">
+            <div class="bg-white rounded-2xl shadow-xl p-8">
+                
+                <form action="{{ url_for('process_rename') }}" method="POST" enctype="multipart/form-data" id="uploadForm">
+                    
+                    <!-- File Upload Area -->
+                    <div class="border-3 border-dashed border-blue-300 rounded-xl p-12 text-center hover:border-blue-500 transition-colors duration-200 bg-blue-50">
+                        <div class="mb-4">
+                            <svg class="mx-auto h-16 w-16 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                        </div>
+                        
+                        <label for="fileInput" class="cursor-pointer">
+                            <span class="text-xl font-semibold text-gray-700 block mb-2">
+                                Pilih File untuk Diproses
+                            </span>
+                            <span class="text-sm text-gray-500 block mb-4">
+                                ZIP atau gambar (JPG, PNG, JPEG) - Maksimal 100MB
+                            </span>
+                            <span class="inline-block bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200">
+                                Browse File
+                            </span>
+                        </label>
+                        
+                        <input type="file" 
+                               id="fileInput" 
+                               name="file" 
+                               multiple 
+                               accept=".zip,.jpg,.jpeg,.png" 
+                               class="hidden"
+                               onchange="updateFileList(this)">
+                    </div>
+
+                    <!-- Selected Files Display -->
+                    <div id="fileList" class="mt-6 hidden">
+                        <h3 class="font-semibold text-gray-700 mb-3">File yang Dipilih:</h3>
+                        <div id="fileListContent" class="space-y-2 max-h-60 overflow-y-auto bg-gray-50 rounded-lg p-4">
+                            <!-- Files akan ditampilkan di sini via JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Instructions -->
+                    <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+                        <h3 class="font-semibold text-blue-900 mb-3 flex items-center">
+                            <span class="mr-2">💡</span> Panduan Penggunaan:
+                        </h3>
+                        <ul class="space-y-2 text-sm text-blue-800">
+                            <li class="flex items-start">
+                                <span class="mr-2">1.</span>
+                                <span>Upload file ZIP berisi gambar peta ATAU pilih multiple gambar sekaligus</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="mr-2">2.</span>
+                                <span>Sistem akan membaca teks dari setiap gambar menggunakan OCR</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="mr-2">3.</span>
+                                <span>File akan di-rename sesuai nomor 10-16 digit yang ditemukan</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="mr-2">4.</span>
+                                <span>Jika nomor tidak ditemukan, file akan dinamai "Anomali_X.jpg"</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="mr-2">5.</span>
+                                <span>Hasil akan dikemas dalam file ZIP yang bisa diunduh</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="mt-8">
+                        <button type="submit" 
+                                id="submitBtn"
+                                class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-lg transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                            🚀 Proses Rename Peta
+                        </button>
+                    </div>
+
+                </form>
+
+                <!-- Processing Indicator (Hidden by default) -->
+                <div id="processingIndicator" class="hidden mt-6 text-center">
+                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+                    <p class="mt-4 text-gray-700 font-semibold">Sedang memproses gambar...</p>
+                    <p class="text-sm text-gray-500 mt-2">Harap tunggu, proses ini mungkin membutuhkan beberapa menit</p>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Update file list display
+        function updateFileList(input) {
+            const fileList = document.getElementById('fileList');
+            const fileListContent = document.getElementById('fileListContent');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (input.files.length > 0) {
+                fileList.classList.remove('hidden');
+                fileListContent.innerHTML = '';
+                
+                for (let i = 0; i < input.files.length; i++) {
+                    const file = input.files[i];
+                    const fileSize = (file.size / 1024 / 1024).toFixed(2);
+                    
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'flex items-center justify-between bg-white p-3 rounded border border-gray-200';
+                    fileItem.innerHTML = `
+                        <div class="flex items-center">
+                            <span class="text-blue-500 mr-3">📄</span>
+                            <div>
+                                <div class="font-medium text-gray-700">${file.name}</div>
+                                <div class="text-xs text-gray-500">${fileSize} MB</div>
+                            </div>
+                        </div>
+                    `;
+                    fileListContent.appendChild(fileItem);
+                }
+                
+                submitBtn.disabled = false;
+            } else {
+                fileList.classList.add('hidden');
+                submitBtn.disabled = true;
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            const processingIndicator = document.getElementById('processingIndicator');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            processingIndicator.classList.remove('hidden');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '⏳ Memproses...';
+        });
+
+        // Disable submit button by default
+        document.getElementById('submitBtn').disabled = true;
+    </script>
+</body>
+</html>

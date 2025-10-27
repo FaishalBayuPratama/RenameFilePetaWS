@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Pemrosesan Peta Digital</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-12">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-800 mb-3">
+                📍 Aplikasi Pemrosesan Peta Digital
+            </h1>
+            <p class="text-gray-600 text-lg">
+                Solusi cerdas untuk mengelola dan mengonversi file peta Anda
+            </p>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="max-w-2xl mx-auto mb-6 p-4 rounded-lg {% if category == 'error' %}bg-red-100 text-red-700 border border-red-300{% else %}bg-green-100 text-green-700 border border-green-300{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Feature Cards -->
+        <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            
+            <!-- Card 1: Rename Peta -->
+            <div class="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden">
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-6">
+                    <div class="text-white text-5xl mb-3">🔍</div>
+                    <h2 class="text-2xl font-bold text-white">Rename Peta dengan OCR</h2>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-600 mb-6">
+                        Otomatis mendeteksi dan me-rename file peta berdasarkan nomor registrasi menggunakan teknologi OCR (Optical Character Recognition).
+                    </p>
+                    
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-start">
+                            <span class="text-green-500 mr-2">✓</span>
+                            <span class="text-sm text-gray-700">Deteksi nomor 10-16 digit otomatis</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="text-green-500 mr-2">✓</span>
+                            <span class="text-sm text-gray-700">Support ZIP atau multiple gambar</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="text-green-500 mr-2">✓</span>
+                            <span class="text-sm text-gray-700">Format: JPG, PNG, JPEG</span>
+                        </div>
+                    </div>
+                    
+                    <a href="{{ url_for('rename') }}" 
+                       class="block w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg text-center transition-colors duration-200">
+                        Mulai Rename Peta →
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card 2: Convert PDF ke JPG -->
+            <div class="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden">
+                <div class="bg-gradient-to-r from-purple-500 to-purple-600 p-6">
+                    <div class="text-white text-5xl mb-3">📄</div>
+                    <h2 class="text-2xl font-bold text-white">Convert PDF ke JPG</h2>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-600 mb-6">
+                        Konversi setiap halaman PDF menjadi gambar JPG berkualitas tinggi dengan resolusi 300 DPI untuk hasil yang tajam dan jelas.
+                    </p>
+                    
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-start">
+                            <span class="text-green-500 mr-2">✓</span>
+                            <span class="text-sm text-gray-700">Kualitas tinggi 300 DPI</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="text-green-500 mr-2">✓</span>
+                            <span class="text-sm text-gray-700">Konversi semua halaman otomatis</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="text-green-500 mr-2">✓</span>
+                            <span class="text-sm text-gray-700">Hasil di-ZIP untuk kemudahan</span>
+                        </div>
+                    </div>
+                    
+                    <a href="{{ url_for('convert') }}" 
+                       class="block w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold py-3 px-6 rounded-lg text-center transition-colors duration-200">
+                        Mulai Convert PDF →
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Info Footer -->
+        <div class="text-center mt-12">
+            <div class="bg-white rounded-lg shadow-md p-6 max-w-3xl mx-auto">
+                <h3 class="font-semibold text-gray-800 mb-3">ℹ️ Informasi Penting</h3>
+                <div class="text-sm text-gray-600 space-y-2">
+                    <p>• Pastikan file yang diupload tidak lebih dari 100MB</p>
+                    <p>• Untuk hasil terbaik, gunakan gambar yang jelas dan tidak blur</p>
+                    <p>• Proses OCR membutuhkan waktu beberapa detik per gambar</p>
+                    <p>• Semua file akan otomatis terhapus setelah diproses</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-8 text-gray-500 text-sm">
+            <p>© 2025 Aplikasi Pemrosesan Peta Digital | Dibuat dengan Flask & TailwindCSS</p>
+        </div>
+    </div>
+</body>
+</html>
