@@ -81,13 +81,13 @@ Edit file `jalankan_web.bat` sesuai dengan lokasi Python dan proyek di komputerm
 
 ```
 RenameFilePetaWS-main/
-├── coba flask.py       # Aplikasi Flask utama
-├── index.html          # Halaman utama
-├── rename.html         # Halaman rename peta
-├── convert.html        # Halaman konversi PDF ke JPG
-├── result.html         # Halaman hasil pemrosesan
-├── style.css           # Gaya kustom
-└── jalankan_web.bat    # File batch Windows untuk menjalankan aplikasi
+├── coba flask.py      # Aplikasi Flask utama
+├── index.html         # Halaman utama
+├── rename.html        # Halaman rename peta
+├── convert.html       # Halaman konversi PDF ke JPG
+├── result.html        # Halaman hasil pemrosesan
+├── style.css          # Gaya kustom
+└── jalankan_web.bat   # File batch Windows untuk menjalankan aplikasi
 ```
 
 ---
